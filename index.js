@@ -3,7 +3,7 @@ const audio = new Audio(
   "https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3"
 );
 audio.loop = true;
-
+const timeToBeSet = "";
 const sunshineAudio = new Audio("sunshin.mp3"); // Add the sunshine audio
 sunshineAudio.loop = false; // Play it only once
 
@@ -159,11 +159,8 @@ document.addEventListener("keydown", (event) => {
   } else if (event.code === "KeyK") {
     clearAlarmUntilNext(); // Reset the alarm time to the base time
   } else if (event.code === "Enter") {
-    // Set the alarm time to 1 minute before and revert it back after 2 minutes
-    const newMinute = (minute - 1 + 60) % 60;
-    const newHour = (hour - (minute === 0 ? 1 : 0) + 24) % 24;
-    const originalAlarmTime = alarmTime; // Store the original alarm time
-    alarmTime = `${formatTime(newHour)}:${formatTime(newMinute)}`;
+    const newHour = (hour + 12) % 24; // Add 12 hours to switch between AM and PM
+    alarmTime = `${formatTime(newHour)}:${formatTime(minute)}`;
     snoozeTime = null; // Reset snooze time when the base alarm time is updated
 
     // Update the UI alarm time
@@ -172,20 +169,7 @@ document.addEventListener("keydown", (event) => {
       alarmInput.value = alarmTime; // Update the input field with the new alarm time
     }
 
-    console.log(`Alarm time temporarily set to: ${alarmTime}`);
-
-    // Revert the alarm time back to the original after 2 minutes
-    setTimeout(() => {
-      alarmTime = originalAlarmTime;
-      snoozeTime = null; // Reset snooze time when reverting
-
-      // Update the UI alarm time
-      if (alarmInput) {
-        alarmInput.value = alarmTime; // Update the input field with the reverted alarm time
-      }
-
-      console.log(`Alarm time reverted back to: ${alarmTime}`);
-    }, 120000); // 2 minutes in milliseconds
+    console.log(`Alarm time toggled to: ${alarmTime}`);
   }
 
   console.log(`Alarm time set to: ${alarmTime}`); // Log the updated alarm time
@@ -224,6 +208,23 @@ function snoozeAlarm() {
 function clearAlarmUntilNext() {
   snoozeTime = null; // Clear the snooze time
   console.log(`Alarm reset to base time: ${alarmTime}`);
+
+  let timeToBeSet = alarmTime; // Use 'let' for reassignment
+  const snapshotAlarmTime = alarmTime; // Take a snapshot of the current alarm time
+
+  // const newMinute = (minute - 2 + 60) % 60;
+  // const newHour = (hour - (minute < 2 ? 1 : 0) + 24) % 24;
+  // const newAlarmTime = `${formatTime(newHour)}:${formatTime(newMinute)}`;
+  setAlarmTime("00:00"); // Set the alarm time to 00:00
+
+  setTimeout(() => {
+    if (alarmTime === timeToBeSet) {
+      console.log("Alarm time is back to base time.");
+    } else {
+      console.log("Alarm time is different from the base time.");
+      setAlarmTime(timeToBeSet);
+    }
+  }, 61000);
 
   clearAlarm(); // Stop the current alarm
 
